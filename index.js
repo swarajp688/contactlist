@@ -32,10 +32,20 @@ var contactList = [
 ];
 
 app.get('/',function(req,res){
-    return res.render('home',{
-        title : "i am flying",
-        contact_list : contactList
-    });
+        Contact.find ({},function(err,contacts){
+            if(err)
+            {
+                console.log('Error in fetching contact from db');
+                return;
+            }
+            
+            return res.render('home',{
+                title : "i am flying",
+                contact_list : contacts
+            });
+        });
+
+    
 
 });
 
@@ -66,13 +76,15 @@ app.post('/create-contact',function(req,res){
 //for deleting contact
 app.get('/delete-contact',function(req,res){
     //get query from the url
-    let phone = req.query.phone;
+    let id = req.query.id;
     
-    let contactIndex = contactList.findIndex(contact => contact.phone == phone);
-    if(contactIndex != -1) {
-        contactList.splice(contactIndex , 1);
-    }
-    return res.redirect('back');
+    Contact.findByIdAndDelete(id,function(err){
+        if(err){
+            console.log('Error while deleting contact');
+        }
+        return res.redirect('back');
+    });
+    
 });
 
 app.listen(port,function(err)
